@@ -1,0 +1,15 @@
+apiVersion: 1
+prune: true
+
+datasources:
+  - name: InfluxDB-Charger-Mock
+    uid: influxdb-charger-mock
+    type: influxdb
+    access: proxy
+    url: http://influxdb3-core:8181
+    editable: false
+    jsonData:
+      version: SQL
+      dbName: charger
+      httpMode: POST
+      insecureGrpc: true

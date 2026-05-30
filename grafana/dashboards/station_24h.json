@@ -1,0 +1,353 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-charger-mock"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "available"
+                },
+                "2": {
+                  "color": "blue",
+                  "index": 1,
+                  "text": "charging"
+                },
+                "3": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "faulted"
+                },
+                "4": {
+                  "color": "gray",
+                  "index": 3,
+                  "text": "offline"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 3
+              },
+              {
+                "color": "gray",
+                "value": 4
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-charger-mock"
+          },
+          "format": "time_series",
+          "query": "SELECT time, connector_id, status_code FROM connector_status WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawQuery": true,
+          "rawSql": "SELECT time, connector_id, status_code FROM connector_status WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Connector state timeline",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-charger-mock"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "unit": "kwatt"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-charger-mock"
+          },
+          "format": "time_series",
+          "query": "SELECT time, connector_id, power_kw FROM charger_power WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawQuery": true,
+          "rawSql": "SELECT time, connector_id, power_kw FROM charger_power WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Connector power",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-charger-mock"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "green",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-charger-mock"
+          },
+          "format": "time_series",
+          "query": "SELECT time, available FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawQuery": true,
+          "rawSql": "SELECT time, available FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Available connectors",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-charger-mock"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 75
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "id": 4,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-charger-mock"
+          },
+          "format": "time_series",
+          "query": "SELECT time, ratio * 100 AS availability_pct FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawQuery": true,
+          "rawSql": "SELECT time, ratio * 100 AS availability_pct FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "24h availability ratio",
+      "type": "bargauge"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "chargeflow",
+    "influxdb3",
+    "local"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "ST-0001",
+          "value": "ST-0001"
+        },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb-charger-mock"
+        },
+        "definition": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 300",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Station",
+        "multi": false,
+        "name": "station_id",
+        "options": [],
+        "query": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 300",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Station 24h Timeline",
+  "uid": "station-24h",
+  "version": 2,
+  "weekStart": ""
+}

@@ -1,0 +1,66 @@
+name: chargeflow-influxdb
+
+services:
+  influxdb3-core:
+    image: influxdb:3-core
+    restart: unless-stopped
+    command:
+      - influxdb3
+      - serve
+      - --node-id=node0
+      - --object-store=file
+      - --data-dir=/var/lib/influxdb3/data
+      - --plugin-dir=/var/lib/influxdb3/plugins
+      - --without-auth
+    ports:
+      - "${LOCAL_BIND_ADDRESS:-127.0.0.1}:${INFLUXDB_PORT:-8181}:8181"
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb3/data
+      - ./data/influxdb-plugins:/var/lib/influxdb3/plugins
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    restart: unless-stopped
+    depends_on:
+      - influxdb3-core
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3001}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "${LOCAL_BIND_ADDRESS:-127.0.0.1}:${GRAFANA_PORT:-3001}:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./data/grafana:/var/lib/grafana
+
+  backend:
+    build:
+      context: ./backend
+    depends_on:
+      - grafana
+      - influxdb3-core
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      CHARGER_DATA_DIR: /app/data/generated
+      GRAFANA_BASE_URL: ${GRAFANA_BASE_URL:-http://localhost:3001}
+      INFLUXDB_URL: http://influxdb3-core:8181
+      INFLUXDB_DATABASE: ${INFLUXDB_DATABASE:-charger}
+    ports:
+      - "${LOCAL_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./data/generated:/app/data/generated:ro
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "${LOCAL_BIND_ADDRESS:-127.0.0.1}:${FRONTEND_PORT:-3000}:3000"
