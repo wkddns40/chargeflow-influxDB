@@ -3,6 +3,10 @@
 __pycache__/
 .pytest_cache/
 logs/
+.cloudflared/
+cloudflare/tunnel/config.yml
+cloudflare/tunnel/*.json
+cloudflare/tunnel/*.pem
 
 node_modules/
 dist/

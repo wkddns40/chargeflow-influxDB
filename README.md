@@ -3,13 +3,13 @@
 `chargeflow-influxDB`는 ChargeFlow 리팩토링 흐름의 세 번째 단계 프로젝트입니다.
 
 ```text
-D:\fleet\ev-charging
+https://github.com/wkddns40/ev-station
   -> 기존 EV 충전소 대시보드 원형
 
-D:\fleet\chargeflow-kr
+https://github.com/wkddns40/chargeflow-kr
   -> 한국형 EV 충전소 지도 프론트엔드 중심 리팩토링
 
-D:\fleet\chargeflow-influxDB
+https://github.com/wkddns40/chargeflow-influxDB
   -> chargeflow-kr 프론트엔드에 붙일 InfluxDB/Grafana 시각화 데모 런타임
 ```
 

@@ -38,3 +38,5 @@ GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL}
 ```
 
 For local development, `GRAFANA_ROOT_URL` should be `http://localhost:3001`. For Cloudflare Tunnel, set it to the public tunnel URL and recreate the Grafana container.
+
+Cloudflare Tunnel deployment steps are documented in [Cloudflare Tunnel](cloudflare-tunnel.md). Keep `GRAFANA_ROOT_URL` and backend `GRAFANA_BASE_URL` on the same public HTTPS origin when the iframe is served through the tunnel.

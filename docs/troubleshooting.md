@@ -23,6 +23,34 @@ GRAFANA_BASE_URL=http://localhost:3001
 
 For Cloudflare Tunnel, both values must use the public tunnel URL.
 
+If the tunnel URL is used, also confirm that `GF_SECURITY_ALLOW_EMBEDDING=true` and that Grafana was recreated after changing `GRAFANA_ROOT_URL`.
+
+## Cloudflare Tunnel returns 404
+
+Check the ingress hostname and catch-all rule:
+
+```powershell
+cloudflared tunnel --config cloudflare\tunnel\config.yml ingress validate
+cloudflared tunnel --config cloudflare\tunnel\config.yml ingress rule https://grafana.example.com
+```
+
+The hostname must match the public Grafana domain, and the Grafana rule must appear before `http_status:404`.
+
+## Cloudflare Tunnel reaches Grafana but iframe redirects
+
+Use the same public HTTPS URL for both values:
+
+```text
+GRAFANA_ROOT_URL=https://grafana.example.com
+GRAFANA_BASE_URL=https://grafana.example.com
+```
+
+Then recreate Grafana and backend:
+
+```powershell
+docker compose up -d --force-recreate grafana backend
+```
+
 ## No stations on the map
 
 Generate metadata:

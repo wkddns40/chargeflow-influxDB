@@ -66,3 +66,5 @@ GRAFANA_BASE_URL=http://localhost:3001
 ```
 
 When using Cloudflare Tunnel later, set both values to the public tunnel URL before recreating Grafana and backend.
+
+Tunnel setup is documented in [Cloudflare Tunnel](cloudflare-tunnel.md).
