@@ -1,0 +1,16 @@
+/frontend/
+/data/
+/logs/
+/grafana/
+/influxdb/
+/cloudflare/
+/docs/
+/tools/
+*.md
+*.lp
+*.zip
+SHA256SUMS.txt
+docker-compose.yml
+**/__pycache__/
+backend/tests/
+backend/.venv/

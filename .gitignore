@@ -25,3 +25,5 @@ backend/.venv/
 dist/
 *.zip
 SHA256SUMS.txt
+
+.vercel
