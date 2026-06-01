@@ -49,9 +49,10 @@ GET /healthz
 GET /api/stations?profile=seoul-gyeonggi&limit=700
 GET /api/stations/ST-0001
 GET /api/grafana/station-timeline-url?station_id=ST-0001
+POST /api/search/ask
 ```
 
-`POST /api/search/ask`는 다음 단계에서 추가합니다.
+`POST /api/search/ask`는 외부 LLM key 없이 station metadata keyword fallback으로 동작합니다.
 
 ## Verify
 
@@ -68,6 +69,7 @@ After Vercel deploy:
 curl https://<vercel-fastapi-origin>/healthz
 curl "https://<vercel-fastapi-origin>/api/stations?profile=seoul-gyeonggi&limit=700"
 curl "https://<vercel-fastapi-origin>/api/grafana/station-timeline-url?station_id=ST-0001"
+curl -X POST "https://<vercel-fastapi-origin>/api/search/ask" -H "Content-Type: application/json" -d "{\"message\":\"Gangnam fast charger\"}"
 ```
 
 Expected:
@@ -75,4 +77,5 @@ Expected:
 - `/healthz` returns `{"status":"ok","env":"vercel"}` when `APP_ENV=vercel`.
 - station list returns 700 rows for `seoul-gyeonggi`.
 - Grafana URL starts with `https://grafana.woonjang.dev`.
+- Ask returns station results whose `station_id` can be passed to Grafana.
 - Backend response does not depend on direct InfluxDB access.

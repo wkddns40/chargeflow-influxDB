@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import grafana, health, stations
+from app.api import grafana, health, search, stations
 
 
 def create_app() -> FastAPI:
@@ -16,6 +16,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(stations.router)
     app.include_router(grafana.router)
+    app.include_router(search.router)
     return app
 
 
