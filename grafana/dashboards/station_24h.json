@@ -305,7 +305,7 @@
       "type": "bargauge"
     }
   ],
-  "refresh": "30s",
+  "refresh": "1m",
   "schemaVersion": 39,
   "tags": [
     "chargeflow",
@@ -324,14 +324,14 @@
           "type": "influxdb",
           "uid": "influxdb-charger-mock"
         },
-        "definition": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 300",
+        "definition": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 700",
         "hide": 0,
         "includeAll": false,
         "label": "Station",
         "multi": false,
         "name": "station_id",
         "options": [],
-        "query": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 300",
+        "query": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 700",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,

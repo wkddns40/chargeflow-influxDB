@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { getJson } from "../lib/api";
 import type { Station, StationProfile, StationsResponse } from "../types";
@@ -21,25 +21,14 @@ type StationsState = {
 };
 
 export function useStations(): StationsState {
-  const [state, setState] = useState<StationsState>({ stations: [], loading: true, error: null });
+  const query = useQuery({
+    queryKey: ["stations", DEFAULT_STATION_PROFILE, DEFAULT_STATION_LIMIT],
+    queryFn: () => getJson<StationsResponse>(stationListPath())
+  });
 
-  useEffect(() => {
-    let active = true;
-    getJson<StationsResponse>(stationListPath())
-      .then((body) => {
-        if (active) {
-          setState({ stations: body.stations, loading: false, error: null });
-        }
-      })
-      .catch((error: Error) => {
-        if (active) {
-          setState({ stations: [], loading: false, error: error.message });
-        }
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  return state;
+  return {
+    stations: query.data?.stations ?? [],
+    loading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null
+  };
 }

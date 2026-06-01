@@ -42,6 +42,21 @@ def test_ask_api_matches_region_and_limit() -> None:
     assert all(result["region"] == "Seoul" for result in body["results"])
 
 
+def test_ask_api_uses_place_distance_for_korean_location() -> None:
+    response = TestClient(app).post(
+        "/api/search/ask?limit=5",
+        json={"message": "강남구청에서 가장 가까운 충전소"},
+    )
+
+    body = response.json()
+    assert response.status_code == 200
+    assert body["mode"] == "location"
+    assert body["count"] == 5
+    assert "location" in body["results"][0]["matched_fields"]
+    assert abs(float(body["results"][0]["lat"]) - 37.5172) < 0.2
+    assert abs(float(body["results"][0]["lng"]) - 127.0473) < 0.2
+
+
 def test_ask_api_rejects_empty_message() -> None:
     response = TestClient(app).post("/api/search/ask", json={"message": ""})
 

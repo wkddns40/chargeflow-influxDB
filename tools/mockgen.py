@@ -25,26 +25,43 @@ REGION_CENTERS = [
     ("Jeju", 33.4996, 126.5312),
 ]
 
-SEOUL_GYEONGGI_REGION_CENTERS = [
-    ("Seoul", 37.5665, 126.9780),
-    ("Incheon", 37.4563, 126.7052),
-    ("Gyeonggi", 37.2636, 127.0286),
-    ("Gyeonggi", 37.4202, 127.1265),
-    ("Gyeonggi", 37.6584, 126.8320),
-    ("Gyeonggi", 37.2411, 127.1776),
-    ("Gyeonggi", 37.7599, 126.7800),
-    ("Gyeonggi", 37.7381, 127.0338),
-    ("Gyeonggi", 37.6360, 127.2165),
-    ("Gyeonggi", 37.3219, 126.8309),
-    ("Gyeonggi", 37.1995, 126.8312),
-    ("Gyeonggi", 37.2723, 127.4350),
+SEOUL_GYEONGGI_STATION_AREAS = [
+    ("Seoul", "Gangnam", 37.4990, 37.5170, 127.0340, 127.0620),
+    ("Seoul", "Seocho", 37.4780, 37.5000, 127.0020, 127.0260),
+    ("Seoul", "Jamsil", 37.5000, 37.5150, 127.0950, 127.1200),
+    ("Seoul", "Mapo", 37.5520, 37.5680, 126.9000, 126.9250),
+    ("Seoul", "Seongdong", 37.5450, 37.5650, 127.0300, 127.0550),
+    ("Seoul", "Yongsan", 37.5320, 37.5420, 126.9680, 126.9950),
+    ("Seoul", "Jongno", 37.5680, 37.5880, 126.9700, 126.9950),
+    ("Seoul", "Guro", 37.4880, 37.5060, 126.8740, 126.9040),
+    ("Seoul", "Nowon", 37.6420, 37.6700, 127.0450, 127.0750),
+    ("Incheon", "Bupyeong", 37.4880, 37.5200, 126.7000, 126.7350),
+    ("Incheon", "Songdo", 37.3600, 37.4050, 126.6250, 126.6900),
+    ("Incheon", "Cheongna", 37.5200, 37.5450, 126.6200, 126.6750),
+    ("Gyeonggi", "Suwon", 37.2550, 37.2850, 127.0150, 127.0450),
+    ("Gyeonggi", "Seongnam", 37.4050, 37.4350, 127.1250, 127.1580),
+    ("Gyeonggi", "Yongin", 37.2300, 37.2600, 127.1150, 127.1500),
+    ("Gyeonggi", "Goyang", 37.6380, 37.6680, 126.7750, 126.8150),
+    ("Gyeonggi", "Bucheon", 37.4880, 37.5120, 126.7550, 126.7820),
+    ("Gyeonggi", "Ansan", 37.3050, 37.3350, 126.8200, 126.8520),
+    ("Gyeonggi", "Anyang", 37.3850, 37.4050, 126.9480, 126.9700),
+    ("Gyeonggi", "Uijeongbu", 37.7280, 37.7550, 127.0250, 127.0550),
+    ("Gyeonggi", "Namyangju", 37.6250, 37.6520, 127.1950, 127.2300),
+    ("Gyeonggi", "Hanam", 37.5320, 37.5520, 127.1900, 127.2350),
+    ("Gyeonggi", "Gimpo", 37.6050, 37.6280, 126.7000, 126.7350),
+    ("Gyeonggi", "Gwangmyeong", 37.4680, 37.4900, 126.8500, 126.8750),
+    ("Gyeonggi", "Siheung", 37.3700, 37.3950, 126.7850, 126.8200),
 ]
 
-REGION_CENTERS_BY_PROFILE = {
-    "seoul-gyeonggi": SEOUL_GYEONGGI_REGION_CENTERS,
-}
+STATION_EXCLUSION_ZONES = [
+    (37.5200, 37.5500, 126.8750, 126.9550),
+    (37.5150, 37.5300, 126.9550, 127.0200),
+    (37.5150, 37.5450, 127.0200, 127.1000),
+    (37.5150, 37.5350, 127.1000, 127.1800),
+]
 
 OPERATORS = ["ChargeFlow", "K-Energy", "EVLine", "GridPlug"]
+MAX_KW_VALUES = [7, 11, 22, 50, 100, 150, 200, 350]
 STATUS = {"available": 1, "charging": 2, "faulted": 3, "offline": 4}
 
 
@@ -62,25 +79,51 @@ def profile_config(profile: str) -> dict[str, int]:
         raise ValueError(f"unknown profile: {profile}") from exc
 
 
+def is_excluded_station_point(lat: float, lng: float) -> bool:
+    return any(
+        lat_min <= lat <= lat_max and lng_min <= lng <= lng_max
+        for lat_min, lat_max, lng_min, lng_max in STATION_EXCLUSION_ZONES
+    )
+
+
+def seoul_gyeonggi_point(area: tuple[str, str, float, float, float, float], rng: random.Random) -> tuple[float, float]:
+    _, _, lat_min, lat_max, lng_min, lng_max = area
+    for _ in range(50):
+        lat = rng.uniform(lat_min, lat_max)
+        lng = rng.uniform(lng_min, lng_max)
+        if not is_excluded_station_point(lat, lng):
+            return lat, lng
+    return (lat_min + lat_max) / 2, (lng_min + lng_max) / 2
+
+
 def generate_stations(profile: str, seed: int) -> list[dict[str, object]]:
     config = profile_config(profile)
-    region_centers = REGION_CENTERS_BY_PROFILE.get(profile, REGION_CENTERS)
     rng = random.Random(seed)
     stations: list[dict[str, object]] = []
 
     for index in range(1, config["stations"] + 1):
-        region, lat, lng = rng.choice(region_centers)
+        if profile == "seoul-gyeonggi":
+            selected_area = rng.choice(SEOUL_GYEONGGI_STATION_AREAS)
+            region, area, *_ = selected_area
+            lat, lng = seoul_gyeonggi_point(selected_area, rng)
+        else:
+            region, lat, lng = rng.choice(REGION_CENTERS)
+            area = region
+            lat = lat + rng.uniform(-0.18, 0.18)
+            lng = lng + rng.uniform(-0.18, 0.18)
         station_id = f"ST-{index:04d}"
+        connector_count = rng.choice([2, 4, 6])
         stations.append(
             {
                 "station_id": station_id,
                 "name": f"Charge Node {index:04d}",
-                "address": f"{region} local road {index:04d}",
+                "address": f"{area} local road {index:04d}",
                 "region": region,
                 "operator": rng.choice(OPERATORS),
-                "lat": round(lat + rng.uniform(-0.18, 0.18), 6),
-                "lng": round(lng + rng.uniform(-0.18, 0.18), 6),
-                "connector_count": rng.choice([2, 4, 6]),
+                "lat": round(lat, 6),
+                "lng": round(lng, 6),
+                "connector_count": connector_count,
+                "max_kw": rng.choice(MAX_KW_VALUES),
             }
         )
 

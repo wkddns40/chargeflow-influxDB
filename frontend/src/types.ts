@@ -11,6 +11,15 @@ export type Station = {
   lat: number;
   lng: number;
   connector_count: number;
+  max_kw?: number;
+};
+
+export type ViewState = {
+  longitude: number;
+  latitude: number;
+  zoom: number;
+  pitch: number;
+  bearing: number;
 };
 
 export type StationsResponse = {
@@ -22,4 +31,17 @@ export type StationsResponse = {
 export type GrafanaUrlResponse = {
   station_id: string;
   url: string;
+};
+
+export type AskResult = Station & {
+  score: number;
+  matched_fields: string[];
+};
+
+export type AskResponse = {
+  message: string;
+  profile: StationProfile;
+  count: number;
+  mode: string;
+  results: AskResult[];
 };
