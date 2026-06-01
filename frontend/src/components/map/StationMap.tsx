@@ -9,17 +9,19 @@ type Props = {
 };
 
 const BOUNDS = {
-  minLat: 33.0,
-  maxLat: 38.8,
-  minLng: 124.5,
-  maxLng: 130.1
-};
+  minLat: 36.85,
+  maxLat: 38.35,
+  minLng: 126.45,
+  maxLng: 127.85
+} as const;
+
+export const SEOUL_GYEONGGI_MAP_BOUNDS = BOUNDS;
 
 function clamp(value: number): number {
   return Math.min(100, Math.max(0, value));
 }
 
-function markerPosition(station: Station): { left: string; top: string } {
+export function markerPosition(station: Station): { left: string; top: string } {
   const left = ((station.lng - BOUNDS.minLng) / (BOUNDS.maxLng - BOUNDS.minLng)) * 100;
   const top = 100 - ((station.lat - BOUNDS.minLat) / (BOUNDS.maxLat - BOUNDS.minLat)) * 100;
   return { left: `${clamp(left)}%`, top: `${clamp(top)}%` };

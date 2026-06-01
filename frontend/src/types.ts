@@ -1,3 +1,7 @@
+export const STATION_PROFILE_VALUES = ["smoke", "seoul-gyeonggi", "dev", "perf"] as const;
+
+export type StationProfile = (typeof STATION_PROFILE_VALUES)[number];
+
 export type Station = {
   station_id: string;
   name: string;
@@ -10,7 +14,7 @@ export type Station = {
 };
 
 export type StationsResponse = {
-  profile: string;
+  profile: StationProfile;
   count: number;
   stations: Station[];
 };

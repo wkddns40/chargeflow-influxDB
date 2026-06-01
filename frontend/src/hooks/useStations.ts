@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
 
 import { getJson } from "../lib/api";
-import type { Station, StationsResponse } from "../types";
+import type { Station, StationProfile, StationsResponse } from "../types";
+
+export const DEFAULT_STATION_PROFILE: StationProfile = "seoul-gyeonggi";
+export const DEFAULT_STATION_LIMIT = 700;
+
+export function stationListPath(
+  profile: StationProfile = DEFAULT_STATION_PROFILE,
+  limit: number = DEFAULT_STATION_LIMIT
+): string {
+  const params = new URLSearchParams({ profile, limit: String(limit) });
+  return `/api/stations?${params.toString()}`;
+}
 
 type StationsState = {
   stations: Station[];
@@ -14,7 +25,7 @@ export function useStations(): StationsState {
 
   useEffect(() => {
     let active = true;
-    getJson<StationsResponse>("/api/stations?profile=smoke&limit=300")
+    getJson<StationsResponse>(stationListPath())
       .then((body) => {
         if (active) {
           setState({ stations: body.stations, loading: false, error: null });
