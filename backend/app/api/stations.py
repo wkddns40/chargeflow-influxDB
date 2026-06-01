@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Query
 from app.core.config import get_settings
 
 router = APIRouter(prefix="/api/stations", tags=["stations"])
+PROFILE_PATTERN = "^(smoke|seoul-gyeonggi|dev|perf)$"
 
 
 def _station_file(profile: str) -> Path:
@@ -21,15 +22,18 @@ def load_stations(profile: str = "smoke") -> list[dict]:
 
 @router.get("")
 def list_stations(
-    profile: str = Query(default="smoke", pattern="^(smoke|dev|perf)$"),
-    limit: int = Query(default=300, ge=1, le=10000),
+    profile: str = Query(default="seoul-gyeonggi", pattern=PROFILE_PATTERN),
+    limit: int = Query(default=700, ge=1, le=10000),
 ) -> dict[str, object]:
     stations = load_stations(profile)
     return {"profile": profile, "count": len(stations[:limit]), "stations": stations[:limit]}
 
 
 @router.get("/{station_id}")
-def get_station(station_id: str, profile: str = Query(default="smoke")) -> dict:
+def get_station(
+    station_id: str,
+    profile: str = Query(default="seoul-gyeonggi", pattern=PROFILE_PATTERN),
+) -> dict:
     for station in load_stations(profile):
         if station["station_id"] == station_id:
             return station

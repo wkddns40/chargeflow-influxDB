@@ -10,6 +10,7 @@
 - InfluxDB 3 Core on port `8181`
 - Python mock generator and seed command under `tools/`
 - Optional Cloudflare Tunnel for public HTTPS access to Grafana only
+- Optional Vercel FastAPI deployment for station metadata and Grafana URL APIs
 
 Docker Compose binds published ports to `127.0.0.1` by default through `LOCAL_BIND_ADDRESS`. Grafana reaches InfluxDB through the internal Compose service URL `http://influxdb3-core:8181`.
 When Cloudflare Tunnel is used, it should route only the public Grafana hostname to `http://127.0.0.1:3001`. InfluxDB should stay private.
@@ -35,6 +36,7 @@ frontend
 The frontend never receives an InfluxDB token. In this local package InfluxDB runs with `--without-auth` for reproducible development and is bound to localhost by default. Do not expose InfluxDB directly to the public internet.
 
 Cloudflare Tunnel setup is documented in [Cloudflare Tunnel](cloudflare-tunnel.md).
+Vercel FastAPI setup is documented in [Vercel FastAPI](vercel-fastapi.md).
 
 ## Runtime Data
 
