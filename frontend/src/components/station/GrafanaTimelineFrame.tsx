@@ -7,6 +7,14 @@ type Props = {
   error: string | null;
 };
 
+export function timelineShellClass(isFullscreen: boolean): string {
+  return isFullscreen ? "timeline-shell timeline-shell-fullscreen" : "timeline-shell";
+}
+
+export function fullscreenButtonLabel(isFullscreen: boolean): string {
+  return isFullscreen ? "Return to panel view" : "Open Grafana fullscreen";
+}
+
 export function GrafanaTimelineFrame({ url, loading, error }: Props) {
   const shellRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -61,15 +69,15 @@ export function GrafanaTimelineFrame({ url, loading, error }: Props) {
   }
 
   return (
-    <div ref={shellRef} className={isFullscreen ? "timeline-shell timeline-shell-fullscreen" : "timeline-shell"}>
+    <div ref={shellRef} className={timelineShellClass(isFullscreen)}>
       <div className="timeline-toolbar">
         <span className="timeline-label">Grafana</span>
         <button
           className="timeline-icon-button"
           type="button"
           onClick={isFullscreen ? exitFullscreen : enterFullscreen}
-          aria-label={isFullscreen ? "Return to panel view" : "Open Grafana fullscreen"}
-          title={isFullscreen ? "Return to panel view" : "Open Grafana fullscreen"}
+          aria-label={fullscreenButtonLabel(isFullscreen)}
+          title={fullscreenButtonLabel(isFullscreen)}
         >
           {isFullscreen ? <Minimize2 aria-hidden="true" size={18} /> : <Maximize2 aria-hidden="true" size={18} />}
         </button>
