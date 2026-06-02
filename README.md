@@ -38,7 +38,11 @@ https://github.com/wkddns40/chargeflow-influxDB
 
 초기 화면은 `chargeflow-kr`의 지도 비율을 유지하고, Ask 검색 결과 3개와 선택 충전소의 Grafana 타임라인 패널을 함께 보여줍니다.
 
-대표 스냅샷은 Grafana `now-24h` 데이터 윈도우와 InfluxDB seed 시점이 맞는 상태에서 다시 생성할 예정입니다.
+아래 스냅샷은 `ST-0224` 기준으로 Grafana `now-24h` 데이터 윈도우와 InfluxDB seed 시점이 맞는 상태에서 생성했습니다.
+
+![ChargeFlow 지도와 Grafana iframe 데모](assets/readme/chargeflow-demo-map-grafana.png)
+
+![ST-0224 Grafana 전체화면 대시보드](assets/readme/grafana-fullscreen-st-0224.png)
 
 현재 Vercel 배포는 FastAPI backend 전용입니다.
 
