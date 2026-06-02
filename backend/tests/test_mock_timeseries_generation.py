@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from tools.mockgen import generate_stations, generate_timeseries, parse_end
+from tools.mockgen import CONNECTOR_COUNT, generate_stations, generate_timeseries, parse_end, profile_config
 
 
 def test_generate_timeseries_files(tmp_path: Path) -> None:
@@ -41,3 +41,17 @@ def test_generate_seoul_gyeonggi_timeseries_files(tmp_path: Path) -> None:
     assert "connector_status,station_id=ST-0001" in (
         tmp_path / "connector_status_seoul-gyeonggi.lp"
     ).read_text(encoding="utf-8")
+
+
+def test_seoul_gyeonggi_profile_uses_ten_minute_timeseries() -> None:
+    config = profile_config("seoul-gyeonggi")
+
+    assert config["stations"] == 700
+    assert config["hours"] == 24 * 7
+    assert config["step_minutes"] == 10
+
+
+def test_generated_stations_use_fixed_connector_count() -> None:
+    stations = generate_stations("seoul-gyeonggi", seed=42)
+
+    assert {station["connector_count"] for station in stations} == {CONNECTOR_COUNT}

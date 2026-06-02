@@ -10,7 +10,7 @@ from typing import Iterable
 
 PROFILES = {
     "smoke": {"stations": 300, "hours": 24, "step_minutes": 15},
-    "seoul-gyeonggi": {"stations": 700, "hours": 24 * 7, "step_minutes": 60},
+    "seoul-gyeonggi": {"stations": 700, "hours": 24 * 7, "step_minutes": 10},
     "dev": {"stations": 7000, "hours": 24 * 7, "step_minutes": 60},
     "perf": {"stations": 7000, "hours": 24 * 30, "step_minutes": 60},
 }
@@ -62,6 +62,7 @@ STATION_EXCLUSION_ZONES = [
 
 OPERATORS = ["ChargeFlow", "K-Energy", "EVLine", "GridPlug"]
 MAX_KW_VALUES = [7, 11, 22, 50, 100, 150, 200, 350]
+CONNECTOR_COUNT = 3
 STATUS = {"available": 1, "charging": 2, "faulted": 3, "offline": 4}
 
 
@@ -112,7 +113,9 @@ def generate_stations(profile: str, seed: int) -> list[dict[str, object]]:
             lat = lat + rng.uniform(-0.18, 0.18)
             lng = lng + rng.uniform(-0.18, 0.18)
         station_id = f"ST-{index:04d}"
-        connector_count = rng.choice([2, 4, 6])
+        # Preserve seeded metadata order while fixing the public connector count.
+        rng.choice([2, 4, 6])
+        connector_count = CONNECTOR_COUNT
         stations.append(
             {
                 "station_id": station_id,

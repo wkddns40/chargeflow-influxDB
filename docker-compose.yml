@@ -12,6 +12,8 @@ services:
       - --data-dir=/var/lib/influxdb3/data
       - --plugin-dir=/var/lib/influxdb3/plugins
       - --without-auth
+      - --query-file-limit=${INFLUXDB_QUERY_FILE_LIMIT:-5000}
+      - --datafusion-max-parquet-fanout=${INFLUXDB_DATAFUSION_MAX_PARQUET_FANOUT:-5000}
     ports:
       - "${LOCAL_BIND_ADDRESS:-127.0.0.1}:${INFLUXDB_PORT:-8181}:8181"
     volumes:

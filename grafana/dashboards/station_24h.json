@@ -98,9 +98,9 @@
             "uid": "influxdb-charger-mock"
           },
           "format": "time_series",
-          "query": "SELECT time, connector_id, status_code FROM connector_status WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "query": "WITH latest AS (SELECT max(time) AS latest_time FROM connector_status WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, connector_id, status_code FROM connector_status WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "rawQuery": true,
-          "rawSql": "SELECT time, connector_id, status_code FROM connector_status WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawSql": "WITH latest AS (SELECT max(time) AS latest_time FROM connector_status WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, connector_id, status_code FROM connector_status WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "refId": "A"
         }
       ],
@@ -154,9 +154,9 @@
             "uid": "influxdb-charger-mock"
           },
           "format": "time_series",
-          "query": "SELECT time, connector_id, power_kw FROM charger_power WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "query": "WITH latest AS (SELECT max(time) AS latest_time FROM charger_power WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, connector_id, power_kw FROM charger_power WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "rawQuery": true,
-          "rawSql": "SELECT time, connector_id, power_kw FROM charger_power WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawSql": "WITH latest AS (SELECT max(time) AS latest_time FROM charger_power WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, connector_id, power_kw FROM charger_power WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "refId": "A"
         }
       ],
@@ -222,9 +222,9 @@
             "uid": "influxdb-charger-mock"
           },
           "format": "time_series",
-          "query": "SELECT time, available FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "query": "WITH latest AS (SELECT max(time) AS latest_time FROM availability_rollup WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, available FROM availability_rollup WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "rawQuery": true,
-          "rawSql": "SELECT time, available FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawSql": "WITH latest AS (SELECT max(time) AS latest_time FROM availability_rollup WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, available FROM availability_rollup WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "refId": "A"
         }
       ],
@@ -295,9 +295,9 @@
             "uid": "influxdb-charger-mock"
           },
           "format": "time_series",
-          "query": "SELECT time, ratio * 100 AS availability_pct FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "query": "WITH latest AS (SELECT max(time) AS latest_time FROM availability_rollup WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, ratio * 100 AS availability_pct FROM availability_rollup WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "rawQuery": true,
-          "rawSql": "SELECT time, ratio * 100 AS availability_pct FROM availability_rollup WHERE $__timeFilter(time) AND station_id = '${station_id}' ORDER BY time",
+          "rawSql": "WITH latest AS (SELECT max(time) AS latest_time FROM availability_rollup WHERE station_id = '${station_id}') SELECT time + (now() - (SELECT latest_time FROM latest)) AS time, ratio * 100 AS availability_pct FROM availability_rollup WHERE station_id = '${station_id}' AND time >= (SELECT latest_time FROM latest) - INTERVAL '24 hours' AND time <= (SELECT latest_time FROM latest) ORDER BY time",
           "refId": "A"
         }
       ],

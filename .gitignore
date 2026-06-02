@@ -7,6 +7,7 @@ logs/
 cloudflare/tunnel/config.yml
 cloudflare/tunnel/*.json
 cloudflare/tunnel/*.pem
+docs/
 
 node_modules/
 dist/
