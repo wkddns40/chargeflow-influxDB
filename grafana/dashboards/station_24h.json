@@ -316,27 +316,17 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "ST-0001",
           "value": "ST-0001"
         },
-        "datasource": {
-          "type": "influxdb",
-          "uid": "influxdb-charger-mock"
-        },
-        "definition": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 700",
-        "hide": 0,
-        "includeAll": false,
+        "hide": 2,
         "label": "Station",
-        "multi": false,
         "name": "station_id",
         "options": [],
-        "query": "SELECT DISTINCT station_id FROM connector_status ORDER BY station_id LIMIT 700",
-        "refresh": 1,
-        "regex": "",
+        "query": "ST-0001",
         "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
+        "type": "textbox"
       }
     ]
   },
