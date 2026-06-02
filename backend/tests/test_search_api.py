@@ -42,6 +42,10 @@ def test_place_aliases_cover_station_area_bboxes() -> None:
         assert EXPECTED_AREA_ALIASES[area] <= set(PLACE_ALIASES)
 
 
+def test_place_aliases_include_seoul_station_and_city_hall_terms() -> None:
+    assert {"서울역", "서울시청", "시청역", "시청"} <= set(PLACE_ALIASES)
+
+
 def test_ask_api_returns_station_results_without_llm_secret() -> None:
     response = TestClient(app).post(
         "/api/search/ask",

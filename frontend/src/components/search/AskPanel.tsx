@@ -12,6 +12,7 @@ type Props = {
   onApplyResults: (stations: Station[]) => void;
   onSelectResult: (station: Station) => void;
   onClearResults: () => void;
+  selectedStationId?: string | null;
 };
 
 export function AskPanel({
@@ -19,7 +20,8 @@ export function AskPanel({
   initialResults = [],
   onApplyResults,
   onSelectResult,
-  onClearResults
+  onClearResults,
+  selectedStationId = null
 }: Props) {
   const [message, setMessage] = useState("");
   const [results, setResults] = useState<Station[]>([]);
@@ -120,8 +122,16 @@ export function AskPanel({
         <div className="assistant-results">
           <ol>
             {results.map((station) => (
-              <li key={station.station_id}>
-                <button className="assistant-result-button" type="button" onClick={() => onSelectResult(station)}>
+              <li
+                className={station.station_id === selectedStationId ? "assistant-result-item-selected" : undefined}
+                key={station.station_id}
+              >
+                <button
+                  aria-pressed={station.station_id === selectedStationId}
+                  className="assistant-result-button"
+                  type="button"
+                  onClick={() => onSelectResult(station)}
+                >
                   <strong>{station.name}</strong>
                   <span>
                     {station.station_id} / {station.region} / {station.connector_count} connectors

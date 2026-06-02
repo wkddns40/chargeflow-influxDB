@@ -34,9 +34,10 @@ const MARKER_COLORS: [number, number, number, number][] = [
   [238, 166, 48, 225],
   [54, 83, 132, 205]
 ];
-const SELECTED_MARKER_COLOR: [number, number, number, number] = [217, 71, 63, 245];
 const SELECTED_MARKER_MIN_RADIUS = 28;
 const SELECTED_MARKER_MAX_RADIUS = 40;
+const SELECTED_ASK_MARKER_MIN_RADIUS = 26;
+const SELECTED_ASK_MARKER_MAX_RADIUS = 32;
 const ASK_RESULT_LIMIT = 3;
 const ASK_RESULT_FIT_PADDING = {
   top: 120,
@@ -74,17 +75,16 @@ export function getStationMarkerSize(
     const maxKw = Number(station.max_kw);
     const markerKw = Number.isFinite(maxKw) ? maxKw : 50;
     const baseRadius = Math.max(5, Math.min(13, markerKw / 18));
-    return isAskResult ? Math.max(18, Math.min(24, baseRadius * 1.8)) : baseRadius;
+    return isAskResult ? 13 : baseRadius;
   }
 
   const zoomRadius = 16 + Math.max(0, zoom - INITIAL_VIEW_STATE.zoom) * 4;
-  return Math.min(SELECTED_MARKER_MAX_RADIUS, Math.max(SELECTED_MARKER_MIN_RADIUS, zoomRadius));
+  const minRadius = isAskResult ? SELECTED_ASK_MARKER_MIN_RADIUS : SELECTED_MARKER_MIN_RADIUS;
+  const maxRadius = isAskResult ? SELECTED_ASK_MARKER_MAX_RADIUS : SELECTED_MARKER_MAX_RADIUS;
+  return Math.min(maxRadius, Math.max(minRadius, zoomRadius));
 }
 
-export function getStationMarkerColor(station: Station, selectedStationId: string | null): [number, number, number, number] {
-  if (station.station_id === selectedStationId) {
-    return SELECTED_MARKER_COLOR;
-  }
+export function getStationMarkerColor(station: Station, _selectedStationId: string | null): [number, number, number, number] {
   const digits = Number(station.station_id.replace(/\D/g, ""));
   return MARKER_COLORS[digits % MARKER_COLORS.length];
 }
@@ -100,6 +100,15 @@ export function MapShell({ stations, loading, error }: MapShellProps) {
   const validStations = useMemo(() => getValidData(layerStations), [layerStations]);
   const isAskResultMode = askResults !== null;
   const selectedStationId = selected?.station_id ?? null;
+  const renderStations = useMemo(() => {
+    if (!selectedStationId) {
+      return validStations;
+    }
+
+    const selectedStations = validStations.filter((station) => station.station_id === selectedStationId);
+    const otherStations = validStations.filter((station) => station.station_id !== selectedStationId);
+    return [...otherStations, ...selectedStations];
+  }, [selectedStationId, validStations]);
 
   const handleFocusStation = useCallback((station: Station) => {
     setSelected(station);
@@ -109,8 +118,9 @@ export function MapShell({ stations, loading, error }: MapShellProps) {
   const handleApplyAskResults = useCallback(
     (results: Station[]) => {
       const limitedResults = results.slice(0, ASK_RESULT_LIMIT);
+      const nextSelected = limitedResults[0] ?? null;
       setAskResults(limitedResults);
-      setSelected(null);
+      setSelected(nextSelected);
       const bounds = getStationsBbox(limitedResults);
       if (bounds) {
         setViewState((currentViewState) =>
@@ -119,11 +129,11 @@ export function MapShell({ stations, loading, error }: MapShellProps) {
         return;
       }
 
-      if (limitedResults[0]) {
-        handleFocusStation(limitedResults[0]);
+      if (nextSelected) {
+        setViewState((currentViewState) => getStationFocusViewState(nextSelected, currentViewState));
       }
     },
-    [handleFocusStation]
+    []
   );
 
   const handleResetMapHome = useCallback(() => {
@@ -170,7 +180,7 @@ export function MapShell({ stations, loading, error }: MapShellProps) {
     () =>
       new ScatterplotLayer<Station>({
         id: "station-points",
-        data: validStations,
+        data: renderStations,
         pickable: true,
         radiusUnits: "pixels",
         stroked: true,
@@ -182,13 +192,18 @@ export function MapShell({ stations, loading, error }: MapShellProps) {
         getPosition: (station: Station) => [station.lng, station.lat],
         getFillColor: (station: Station) => getStationMarkerColor(station, selectedStationId),
         getLineColor: () => [255, 255, 255, 245],
+        transitions: {
+          getFillColor: 160,
+          getLineWidth: 160,
+          getRadius: 180
+        },
         onClick: ({ object }: { object?: Station | null }) => {
           if (object) {
             handleFocusStation(object);
           }
         }
       }),
-    [handleFocusStation, isAskResultMode, selectedStationId, validStations, viewState.zoom]
+    [handleFocusStation, isAskResultMode, renderStations, selectedStationId, viewState.zoom]
   );
 
   return (
@@ -231,6 +246,7 @@ export function MapShell({ stations, loading, error }: MapShellProps) {
             onApplyResults={handleApplyAskResults}
             onSelectResult={handleFocusStation}
             onClearResults={handleResetMapHome}
+            selectedStationId={selectedStationId}
           />
         </div>
 

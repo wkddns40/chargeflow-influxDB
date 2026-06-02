@@ -14,6 +14,7 @@ https://github.com/wkddns40/chargeflow-influxDB
 ```
 
 [![CI](https://github.com/wkddns40/chargeflow-influxDB/actions/workflows/ci.yml/badge.svg)](https://github.com/wkddns40/chargeflow-influxDB/actions/workflows/ci.yml)
+[![Demo](https://img.shields.io/badge/Demo-chargeflow--influxdb.pages.dev-0f172a?logo=cloudflarepages)](https://chargeflow-influxdb.pages.dev)
 [![API](https://img.shields.io/badge/API-chargeflow--influxdb.vercel.app-111827?logo=fastapi)](https://chargeflow-influxdb.vercel.app/healthz)
 [![Grafana](https://img.shields.io/badge/Grafana-grafana.woonjang.dev-f46800?logo=grafana)](https://grafana.woonjang.dev/login)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -44,8 +45,9 @@ https://github.com/wkddns40/chargeflow-influxDB
 
 ![ST-0224 Grafana 전체화면 대시보드](assets/readme/grafana-fullscreen-st-0224.png)
 
-현재 Vercel 배포는 FastAPI backend 전용입니다.
+현재 데모 프론트엔드는 Cloudflare Pages, API는 Vercel FastAPI로 배포합니다.
 
+- Demo site: [chargeflow-influxdb.pages.dev](https://chargeflow-influxdb.pages.dev)
 - API health: [chargeflow-influxdb.vercel.app/healthz](https://chargeflow-influxdb.vercel.app/healthz)
 - Station API: `/api/stations?profile=seoul-gyeonggi&limit=700`
 - Ask API: `/api/search/ask`

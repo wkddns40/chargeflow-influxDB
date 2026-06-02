@@ -25,9 +25,13 @@ describe("MapShell helpers", () => {
 
     expect(getStationMarkerSize(slow, null, 10)).toBe(5);
     expect(getStationMarkerSize(fast, null, 10)).toBe(13);
-    expect(getStationMarkerSize(slow, null, 10, true)).toBe(18);
-    expect(getStationMarkerSize(fast, null, 10, true)).toBeCloseTo(23.4);
+    expect(getStationMarkerSize(slow, null, 10, true)).toBe(13);
+    expect(getStationMarkerSize(fast, null, 10, true)).toBe(13);
     expect(getStationMarkerSize(slow, "ST-0001", 14)).toBe(28);
+    expect(getStationMarkerSize(slow, "ST-0001", 14, true)).toBe(26);
+    expect(getStationMarkerSize(slow, "ST-0001", 14, true)).toBeGreaterThan(
+      getStationMarkerSize(fast, null, 10, true)
+    );
     expect(getStationMarkerSize({ ...slow, max_kw: undefined }, null, 10)).toBe(5);
   });
 
@@ -38,6 +42,6 @@ describe("MapShell helpers", () => {
     const green = getStationMarkerColor(station({ station_id: "ST-0004" }), null);
 
     expect(new Set([red.join(","), orange.join(","), gray.join(","), green.join(",")]).size).toBe(4);
-    expect(getStationMarkerColor(station({ station_id: "ST-0001" }), "ST-0001")[3]).toBeGreaterThan(red[3]);
+    expect(getStationMarkerColor(station({ station_id: "ST-0001" }), "ST-0001")).toEqual(red);
   });
 });
