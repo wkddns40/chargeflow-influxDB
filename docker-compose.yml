@@ -40,16 +40,28 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
       - ./data/grafana:/var/lib/grafana
 
+  grafana-proxy:
+    build:
+      context: .
+      dockerfile: grafana_proxy/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - grafana
+    environment:
+      GRAFANA_UPSTREAM_URL: http://grafana:3000
+    ports:
+      - "${LOCAL_BIND_ADDRESS:-127.0.0.1}:${GRAFANA_PROXY_PORT:-3002}:8080"
+
   backend:
     build:
       context: ./backend
     depends_on:
-      - grafana
+      - grafana-proxy
       - influxdb3-core
     environment:
       APP_ENV: ${APP_ENV:-local}
       CHARGER_DATA_DIR: /app/data/generated
-      GRAFANA_BASE_URL: ${GRAFANA_BASE_URL:-http://localhost:3001}
+      GRAFANA_BASE_URL: ${GRAFANA_BASE_URL:-http://localhost:3002}
       INFLUXDB_URL: http://influxdb3-core:8181
       INFLUXDB_DATABASE: ${INFLUXDB_DATABASE:-charger}
     ports:

@@ -3,5 +3,5 @@ credentials-file: 'C:\Users\<USER>\.cloudflared\<TUNNEL_ID>.json'
 
 ingress:
   - hostname: grafana.example.com
-    service: http://127.0.0.1:3001
+    service: http://127.0.0.1:3002
   - service: http_status:404
