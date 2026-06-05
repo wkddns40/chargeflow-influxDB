@@ -16,7 +16,7 @@ https://github.com/wkddns40/chargeflow-influxDB
 [![CI](https://github.com/wkddns40/chargeflow-influxDB/actions/workflows/ci.yml/badge.svg)](https://github.com/wkddns40/chargeflow-influxDB/actions/workflows/ci.yml)
 [![Demo](https://img.shields.io/badge/Demo-chargeflow--influxdb.pages.dev-0f172a?logo=cloudflarepages)](https://chargeflow-influxdb.pages.dev)
 [![API](https://img.shields.io/badge/API-chargeflow--influxdb.vercel.app-111827?logo=fastapi)](https://chargeflow-influxdb.vercel.app/healthz)
-[![Grafana](https://img.shields.io/badge/Grafana-grafana.woonjang.dev-f46800?logo=grafana)](https://grafana.woonjang.dev/login)
+[![Grafana](https://img.shields.io/badge/Grafana-grafana.woonjang.dev-f46800?logo=grafana)](https://grafana.woonjang.dev/d/station-24h/station-24h?orgId=1&var-station_id=ST-0224&from=now-24h&to=now&kiosk)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript)](frontend/tsconfig.json)
 [![Vite](https://img.shields.io/badge/Vite-7.x-646cff?logo=vite)](frontend/vite.config.ts)
@@ -52,7 +52,7 @@ https://github.com/wkddns40/chargeflow-influxDB
 - Station API: `/api/stations?profile=seoul-gyeonggi&limit=700`
 - Ask API: `/api/search/ask`
 - Grafana URL API: `/api/grafana/station-timeline-url?station_id=ST-0001`
-- Grafana tunnel: [grafana.woonjang.dev](https://grafana.woonjang.dev/login)
+- Grafana dashboard: [grafana.woonjang.dev](https://grafana.woonjang.dev/d/station-24h/station-24h?orgId=1&var-station_id=ST-0224&from=now-24h&to=now&kiosk)
 
 ## 목표
 
@@ -67,6 +67,7 @@ chargeflow-influxDB runtime
   -> Vercel FastAPI station API
   -> Grafana iframe URL API
   -> Local InfluxDB 3 Core mock 시계열
+  -> Grafana allowlist proxy
   -> Local Grafana OSS dashboard
   -> Cloudflare Tunnel HTTPS 노출
 ```
@@ -82,7 +83,7 @@ chargeflow-influxDB runtime
 | Grafana iframe 패널 | 마커 또는 검색 결과를 선택하면 우측 패널에서 station metadata와 Grafana dashboard iframe을 표시합니다. |
 | Station variable 전달 | backend가 `var-station_id=<선택 station>`이 포함된 Grafana URL을 생성합니다. |
 | InfluxDB mock 시계열 | InfluxDB 3 Core에 700개 서울/경기 충전소의 7일치 10분 간격 mock 데이터를 적재해 Grafana dashboard에서 조회합니다. 각 충전소는 3개 connector로 통일합니다. Grafana 쿼리는 station별 최신 seed 구간 24시간을 현재 시간축으로 shift해 `now-24h` 0건 재발을 막습니다. |
-| 무료 PoC 배포 흐름 | Cloudflare Pages frontend, Vercel FastAPI, 로컬 Grafana/InfluxDB, Cloudflare Tunnel 조합을 기준으로 합니다. |
+| 무료 PoC 배포 흐름 | Cloudflare Pages frontend, Vercel FastAPI, 로컬 Grafana/InfluxDB, Grafana allowlist proxy, Cloudflare Tunnel 조합을 기준으로 합니다. |
 
 ## 기술 스택
 
@@ -94,7 +95,7 @@ chargeflow-influxDB runtime
 | 백엔드 | FastAPI, Python, Vercel Python entrypoint |
 | 시계열 DB | InfluxDB 3 Core local self-hosted |
 | 시각화 | Grafana OSS dashboard iframe |
-| HTTPS 노출 | Cloudflare Tunnel for Grafana |
+| HTTPS 노출 | Cloudflare Tunnel for Grafana allowlist proxy |
 | 테스트 | Vitest, pytest, FastAPI TestClient |
 | CI | GitHub Actions backend/frontend/mock/compose jobs |
 
@@ -111,11 +112,12 @@ flowchart LR
     frontend -->|GET /api/grafana/station-timeline-url| api
     api -->|Grafana iframe URL| frontend
     frontend -->|iframe HTTPS| tunnel["Cloudflare Tunnel<br/>grafana.woonjang.dev"]
-    tunnel --> grafana["Local Grafana OSS"]
+    tunnel --> proxy["Grafana allowlist proxy<br/>grafana_proxy"]
+    proxy --> grafana["Local Grafana OSS"]
     grafana --> influx["Local InfluxDB 3 Core"]
 ```
 
-Vercel FastAPI는 station 목록, Ask 검색, Grafana URL 생성만 담당합니다. InfluxDB는 외부에 직접 공개하지 않고, Grafana만 Cloudflare Tunnel로 노출합니다.
+Vercel FastAPI는 station 목록, Ask 검색, Grafana URL 생성만 담당합니다. InfluxDB는 외부에 직접 공개하지 않고, Cloudflare Tunnel은 `grafana_proxy` allowlist proxy만 노출합니다. proxy는 dashboard/static/query 경로만 Grafana로 전달하고, `/`와 `/login`은 기본 station dashboard로 redirect하며, `/api/login` 등 admin/login API는 차단합니다.
 
 ### 배포 흐름
 
@@ -124,17 +126,19 @@ flowchart TD
     push["main push"] --> actions["GitHub Actions CI"]
     actions --> backendDeploy["Vercel FastAPI deploy"]
     actions --> frontendDeploy["Cloudflare Pages frontend deploy"]
-    local["Local Docker Compose"] --> grafana["Grafana OSS"]
+    local["Local Docker Compose"] --> proxy["grafana-proxy"]
+    local --> grafana["Grafana OSS"]
     local --> influx["InfluxDB 3 Core"]
-    tunnel["cloudflared Windows service"] --> grafana
+    tunnel["cloudflared Windows service"] --> proxy
+    proxy --> grafana
 ```
 
 ## 로컬 개발
 
-Docker Compose 런타임:
+Docker Compose 전체 런타임:
 
 ```powershell
-docker compose up -d influxdb3-core grafana backend
+docker compose up -d
 ```
 
 프론트엔드:
@@ -154,7 +158,7 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 $env:PYTHONPATH='.'
-$env:GRAFANA_BASE_URL='http://localhost:3001'
+$env:GRAFANA_BASE_URL='http://localhost:3002'
 uvicorn app.main:app --reload
 ```
 
@@ -192,9 +196,13 @@ chargeflow-influxDB/
 ├── grafana/
 │   ├── dashboards/               # station_24h dashboard JSON
 │   └── provisioning/             # datasource/dashboard provisioning
+├── grafana_proxy/                 # public tunnel allowlist proxy
 ├── tools/                        # mock generation and InfluxDB seed scripts
+├── scripts/                      # local verification helpers
 ├── cloudflare/tunnel/            # tunnel config example
-├── docker-compose.yml            # local InfluxDB/Grafana/backend/frontend
+├── data/                         # local persisted InfluxDB/Grafana data
+├── docs/                         # supporting docs
+├── docker-compose.yml            # local InfluxDB/Grafana/proxy/backend/frontend
 ├── server.py                     # Vercel FastAPI entrypoint
 └── vercel.json                   # Vercel API rewrite
 ```
@@ -204,7 +212,7 @@ chargeflow-influxDB/
 - Cloudflare Pages는 frontend SPA를 배포합니다.
 - Vercel Hobby는 FastAPI backend를 배포합니다.
 - Grafana OSS와 InfluxDB 3 Core는 로컬 Docker Compose로 자가호스팅합니다.
-- Cloudflare Tunnel은 Grafana HTTPS origin만 제공합니다.
+- Cloudflare Tunnel은 `grafana_proxy` HTTPS origin만 제공합니다. Grafana admin/login API는 public tunnel에서 차단합니다.
 - InfluxDB는 외부 인터넷에 직접 공개하지 않습니다.
 - Vercel backend가 InfluxDB를 직접 query하지 않고, Grafana URL 생성과 station metadata API에 집중합니다.
 
@@ -240,7 +248,7 @@ Runtime smoke:
 2. Ask 검색 결과 3개 표시 확인
 3. 충전소 마커 또는 검색 결과 선택
 4. 우측 Grafana 패널 로드 확인
-5. iframe URL에 var-station_id=<선택 station> 포함 확인
+5. DevTools에서 iframe `src` 또는 `/api/grafana/station-timeline-url` 응답에 `var-station_id=<선택 station>` 포함 확인
 6. Grafana panel에 no data가 없는지 확인
 7. iframe fullscreen 진입/복귀 확인
 ```
