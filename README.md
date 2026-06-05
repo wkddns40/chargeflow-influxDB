@@ -1,6 +1,6 @@
 # chargeflow-influxDB
 
-`chargeflow-influxDB`는 ChargeFlow 리팩토링 흐름의 세 번째 단계 프로젝트입니다. `chargeflow-kr`의 한국형 지도 프론트엔드 경험을 유지하면서, 충전소 선택 시 InfluxDB 시계열 데이터를 Grafana iframe으로 보여주는 데모 런타임을 검증합니다.
+`chargeflow-influxDB`는 ChargeFlow 리팩토링 흐름의 세 번째 단계 프로젝트입니다. `chargeflow-kr`의 한국형 지도 프론트엔드 경험을 유지하면서, 충전소 선택 시 InfluxDB 시계열 데이터를 Grafana iframe으로 보여주는 `deployed demo for InfluxDB + Grafana timeline`입니다.
 
 ```text
 https://github.com/wkddns40/ev-station
@@ -10,7 +10,7 @@ https://github.com/wkddns40/chargeflow-kr
   -> 한국형 EV 충전소 지도 프론트엔드 중심 리팩토링
 
 https://github.com/wkddns40/chargeflow-influxDB
-  -> chargeflow-kr 프론트엔드에 붙일 InfluxDB/Grafana 시각화 데모 런타임
+  -> deployed demo for InfluxDB + Grafana timeline
 ```
 
 [![CI](https://github.com/wkddns40/chargeflow-influxDB/actions/workflows/ci.yml/badge.svg)](https://github.com/wkddns40/chargeflow-influxDB/actions/workflows/ci.yml)
@@ -51,7 +51,7 @@ https://github.com/wkddns40/chargeflow-influxDB
 - API health: [chargeflow-influxdb.vercel.app/healthz](https://chargeflow-influxdb.vercel.app/healthz)
 - Station API: `/api/stations?profile=seoul-gyeonggi&limit=700`
 - Ask API: `/api/search/ask`
-- Grafana URL API: `/api/grafana/station-timeline-url?station_id=ST-0001`
+- Grafana URL API: `/api/grafana/station-timeline-url?station_id=ST-0224`
 - Grafana dashboard: [grafana.woonjang.dev](https://grafana.woonjang.dev/d/station-24h/station-24h?orgId=1&var-station_id=ST-0224&from=now-24h&to=now&kiosk)
 
 ## 목표
@@ -63,7 +63,7 @@ chargeflow-kr frontend shell
   -> 마커 선택
   -> 우측 Grafana 중심 상세 패널
 
-chargeflow-influxDB runtime
+chargeflow-influxDB deployed demo
   -> Vercel FastAPI station API
   -> Grafana iframe URL API
   -> Local InfluxDB 3 Core mock 시계열
@@ -72,7 +72,7 @@ chargeflow-influxDB runtime
   -> Cloudflare Tunnel HTTPS 노출
 ```
 
-이 저장소의 핵심은 경로 계획이나 PostGIS 운영 기능이 아니라, 지도 위 충전소 선택과 InfluxDB/Grafana 시각화 연결을 검증하는 것입니다.
+이 저장소의 핵심은 경로 계획이나 PostGIS 운영 기능이 아니라, 지도 위 충전소 선택과 InfluxDB/Grafana 시각화 연결을 배포 데모로 확인하는 것입니다.
 
 ## 기능
 
@@ -210,8 +210,8 @@ chargeflow-influxDB/
 ## 배포 기준
 
 - Cloudflare Pages는 frontend SPA를 배포합니다.
-- Vercel Hobby는 FastAPI backend를 배포합니다.
-- Grafana OSS와 InfluxDB 3 Core는 로컬 Docker Compose로 자가호스팅합니다.
+- Vercel 은 FastAPI backend를 배포합니다.
+- Grafana OSS와 InfluxDB 3 Core는 로컬 Docker Compose로 호스팅합니다.
 - Cloudflare Tunnel은 `grafana_proxy` HTTPS origin만 제공합니다. Grafana admin/login API는 public tunnel에서 차단합니다.
 - InfluxDB는 외부 인터넷에 직접 공개하지 않습니다.
 - Vercel backend가 InfluxDB를 직접 query하지 않고, Grafana URL 생성과 station metadata API에 집중합니다.
@@ -241,10 +241,10 @@ npm test
 npm run build
 ```
 
-Runtime smoke:
+배포 데모 검증:
 
 ```text
-1. 프론트엔드 접속
+1. https://chargeflow-influxdb.pages.dev 접속
 2. Ask 검색 결과 3개 표시 확인
 3. 충전소 마커 또는 검색 결과 선택
 4. 우측 Grafana 패널 로드 확인
