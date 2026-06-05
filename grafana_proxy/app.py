@@ -4,13 +4,14 @@ import os
 
 import httpx
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from .security import validate_ds_query_payload
 
 
 UPSTREAM_URL = os.getenv("GRAFANA_UPSTREAM_URL", "http://grafana:3000").rstrip("/")
 TIMEOUT = httpx.Timeout(30.0, connect=10.0)
+PUBLIC_ENTRYPOINT = "/d/station-24h/station-24h?orgId=1&var-station_id=ST-0224&from=now-24h&to=now&kiosk"
 
 HOP_BY_HOP_HEADERS = {
     "connection",
@@ -33,7 +34,6 @@ BLOCKED_PREFIXES = (
     "/api/user",
     "/api/users",
     "/explore",
-    "/login",
     "/profile",
 )
 
@@ -68,8 +68,8 @@ def proxy_healthz() -> dict[str, str]:
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"])
 async def proxy(path: str, request: Request) -> Response:
     proxied_path = "/" + path
-    if proxied_path == "/":
-        return _forbidden("root_blocked")
+    if request.method.upper() in {"GET", "HEAD"} and proxied_path in {"/", "/login"}:
+        return RedirectResponse(PUBLIC_ENTRYPOINT)
 
     body = await request.body()
     method = request.method.upper()

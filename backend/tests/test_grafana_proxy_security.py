@@ -1,6 +1,9 @@
 import json
 
+from fastapi.testclient import TestClient
+
 from grafana_proxy.app import _is_allowed_request
+from grafana_proxy.app import app as grafana_proxy_app
 from grafana_proxy.security import validate_ds_query_payload
 
 
@@ -72,3 +75,13 @@ def test_blocks_datasource_api_paths() -> None:
 def test_allows_login_ping_without_opening_login_api() -> None:
     assert _is_allowed_request("GET", "/api/login/ping", b"") == (True, "")
     assert _is_allowed_request("GET", "/api/login", b"") == (False, "blocked_path")
+
+
+def test_redirects_public_entrypoints_to_dashboard() -> None:
+    client = TestClient(grafana_proxy_app)
+
+    for path in ("/", "/login"):
+        response = client.get(path, follow_redirects=False)
+
+        assert response.status_code == 307
+        assert response.headers["location"].startswith("/d/station-24h/station-24h?")
